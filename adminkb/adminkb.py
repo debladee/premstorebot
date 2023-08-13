@@ -7,6 +7,9 @@ admkb = ReplyKeyboardMarkup(keyboard=[
         ),
         KeyboardButton(
             text='Изменить'
+        ),
+        KeyboardButton(
+            text='Показать таблицы'
         )
     ],
     [
