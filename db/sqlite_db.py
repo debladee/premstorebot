@@ -1,6 +1,6 @@
 import sqlite3 as sq
 import imports
-from aiogram import Bot
+from aiogram import Bot, types
 global base, cur
 bot = Bot(token=imports.TOKEN)
 
@@ -19,6 +19,13 @@ def sql_start():
     base.execute('CREATE TABLE IF NOT EXISTS xboxRU(img TEXT, name TEXT PRIMARY KEY, description TEXT, price TEXT)')
     base.execute('CREATE TABLE IF NOT EXISTS xboxEN(img TEXT, name TEXT PRIMARY KEY, description TEXT, price TEXT)')
     base.commit()
+
+async def sql_get_tables(message: types.Message):
+    cur = sql_start()
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables = cur.fetchall()
+    tables_str = ', '.join([table[0] for table in tables])
+    await message.answer(f"Таблицы в базе данных: {tables_str}")
 
 async def sql_add_vbucks(state):
     async with state.proxy() as data:
