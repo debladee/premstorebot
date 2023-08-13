@@ -3,6 +3,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram import types, Bot, Dispatcher
 from adminkb.adminkb import admkb
 from imports import ADMIN, TOKEN
+from db.sqlite_db import sql_get_tables, sql_add_vbucks
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
@@ -27,6 +28,16 @@ async def op(message: types.Message, bot: Bot):
         await message.answer('Добро пожаловать в админ-меню, воспользуйтесь клавиатурой для совершения действий', reply_markup=admkb)
     else:
         await bot.send_message(message.from_user.id, 'Вы не являетесь администратором')
+
+#async def list_tables(message: types.Message, bot: Bot):
+#    if message.from_user.id == ADMIN:
+#        tables = sql_get_tables()
+#        if tables:
+#            tables_text = '\n'.join(tables)
+#            response = f"Список таблиц:\n{tables_text}"
+#        else:
+#            response = "В базе данных нет таблиц."
+#        await bot.answer(response)
 
 async def add(message: types.Message, state: FSMContext, bot: Bot):
     if message.from_user.id == ADMIN:
@@ -61,6 +72,7 @@ async def load_price(message: types.Message, state : FSMContext, bot: Bot):
     await state.update_data(price=float(message.text))
     await state.set_state(UPD.table_select)
     await message.answer('Выберите таблицу для добавление записи: ')
+
 
 #async def table_select(message: types.Message, state : FSMContext):
 
