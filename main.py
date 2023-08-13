@@ -10,7 +10,7 @@ from aiogram.filters import Command
 
     #Запуск SQLite
 print('Бот онлайн')
-sql_start()
+sqlite_db.sql_start()
 
     #Стартовая функция и логирование
 async def start():
