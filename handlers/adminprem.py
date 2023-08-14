@@ -1,18 +1,18 @@
+import db.sqlite_db
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram import types, Bot, Dispatcher
-from adminkb.adminkb import admkb
+from adminkb.adminkb import admkb, selector
 from imports import ADMIN, TOKEN
-from db.sqlite_db import sql_get_tables, sql_add_vbucks
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 class UPD(StatesGroup):
+    table_select = State()
     photo = State()
     name = State()
     description = State()
     price = State()
-    table_select = State()
    # vru = State()
   #  ven = State()
    # bru = State()
@@ -29,20 +29,11 @@ async def op(message: types.Message, bot: Bot):
     else:
         await bot.send_message(message.from_user.id, 'Вы не являетесь администратором')
 
-#async def list_tables(message: types.Message, bot: Bot):
-#    if message.from_user.id == ADMIN:
-#        tables = sql_get_tables()
-#        if tables:
-#            tables_text = '\n'.join(tables)
-#            response = f"Список таблиц:\n{tables_text}"
-#        else:
-#            response = "В базе данных нет таблиц."
-#        await bot.answer(response)
-
-async def add(message: types.Message, state: FSMContext, bot: Bot):
+async def table_selector(message: types.Message, state: FSMContext, bot: Bot):
     if message.from_user.id == ADMIN:
-        await message.answer('Добавьте картинку, обратите внимание на язык, который вы собираетесь добавить')
-        await state.set_state(UPD.photo)
+        await message.answer('Выберете таблицу', reply_markup=selector)
+        # await message.answer('Добавьте картинку, обратите внимание на язык, который вы собираетесь добавить')
+        await state.set_state(UPD.table_select)
     else:
         await bot.send_message(message.from_user.id, 'Вы не являетесь администратором')
 
@@ -52,6 +43,10 @@ async def cancel(message: types.Message, state: FSMContext, bot: Bot):
         return
     await state.clear()
     await message.answer('Изменения отменены')
+
+async def add(message: types.Message, state: FSMContext, bot: Bot):
+    await message.answer('Добавьте картинку, обратите внимание на язык, который вы собираетесь добавить')
+    await state.set_state(UPD.photo)
 
 async def load_photo(message: types.Message, state: FSMContext, bot: Bot):
     await state.update_data(photo=message.photo[-1].file_id)
@@ -79,56 +74,56 @@ async def load_price(message: types.Message, state : FSMContext, bot: Bot):
 #async def vru (message: types.Message, state : FSMContext):
  #   if message.from_user.id == ADMIN:
   #      await state.set_state()
-  #  await sqlite_db.sql_add_vbucks(state)
+  #  await sqlite_db.add_vbucks(state)
   #  await message.answer('Добавлено в таблицу В-баксы (RUB)')
   #  await state.finish()
 
 # async def ven (message: types.Message, state : FSMContext):
 #     if message.from_user.id == ADMIN:
 #         await state.set_state()
-#     await sqlite_db.sql_add_vbucksen(state)
+#     await sqlite_db.add_vbucksen(state)
 #     await message.answer('Добавлено в таблицу В-баксы (USD)')
 #     await state.finish()
 #
 # async def bru (message: types.Message, state : FSMContext):
 #     if message.from_user.id == ADMIN:
 #         await state.set_state()
-#     await sqlite_db.sql_add_bundles(state)
+#     await sqlite_db.add_bundles(state)
 #     await message.answer('Добавлено в таблицу Наборы (RUB)')
 #     await state.finish()
 #
 # async def ben (message: types.Message, state : FSMContext):
 #     if message.from_user.id == ADMIN:
 #         await state.set_state()
-#     await sqlite_db.sql_add_bundlesen(state)
+#     await sqlite_db.add_bundlesen(state)
 #     await message.answer('Добавлено в таблицу Наборы (USD)')
 #     await state.finish()
 #
 # async def sru (message: types.Message, state : FSMContext):
 #     if message.from_user.id == ADMIN:
 #         await state.set_state()
-#     await sqlite_db.sql_add_spot(state)
+#     await sqlite_db.add_spot(state)
 #     await message.answer('Добавлено в таблицу Spotify (RUB)')
 #     await state.finish()
 #
 # async def sen (message: types.Message, state : FSMContext):
 #     if message.from_user.id == ADMIN:
 #         await state.set_state()
-#     await sqlite_db.sql_add_spoten(state)
+#     await sqlite_db.add_spoten(state)
 #     await message.answer('Добавлено в таблицу Spotify (USD)')
 #     await state.finish()
 #
 # async def xru (message: types.Message, state : FSMContext):
 #     if message.from_user.id == ADMIN:
 #         await state.set_state()
-#     await sqlite_db.sql_add_xbox(state)
+#     await sqlite_db.add_xbox(state)
 #     await message.answer('Добавлено в таблицу Xbox (USD)')
 #     await state.finish()
 #
 # async def xen (message: types.Message, state : FSMContext):
 #     if message.from_user.id == ADMIN:
 #         await state.set_state()
-#     await sqlite_db.sql_add_xboxen(state)
+#     await sqlite_db.add_xboxen(state)
 #     await message.answer('Добавлено в таблицу В-баксы (USD)')
 #     await state.()
 #

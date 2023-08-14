@@ -3,23 +3,32 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 admkb = ReplyKeyboardMarkup(keyboard=[
     [
         KeyboardButton(
-            text='Добавить'
+            text='/Добавить'
         ),
         KeyboardButton(
-            text='Изменить'
+            text='/Изменить'
         ),
         KeyboardButton(
-            text='Показать таблицы'
+            text='/Таблицы'
         )
     ],
     [
         KeyboardButton(
-                text='Удалить'
+                text='/Удалить'
             ),
             KeyboardButton(
-                text='Отмена'
+                text='/Отмена'
             )
     ]
 ], resize_keyboard=True)
 
-
+selector = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text='/Вбаксы'
+        ),
+        KeyboardButton(
+            text='/vbucks'
+        )
+    ]
+])

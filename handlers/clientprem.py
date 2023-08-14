@@ -1,7 +1,7 @@
 from aiogram import types, Bot, Dispatcher
 from inline import inline
 import imports
-from db.sqlite_db import sql_read_vbucks
+from db.sqlite_db import read_vbucks
 bot = Bot(token=imports.TOKEN)
 dp = Dispatcher()
 
