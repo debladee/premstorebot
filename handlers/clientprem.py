@@ -5,6 +5,8 @@ from db.sqlite_db import read_vbucks
 bot = Bot(token=imports.TOKEN)
 dp = Dispatcher()
 
+    # Функция старта, потом идут соответсвующие функции получаемые после выбора из первой
+
 async def startup(message: types.Message, bot: Bot):
     await message.answer('Добрый день, пожалуйста выберите предпочитаемый язык, заметье от языка зависит валюта и доступные методы оплаты. Welcome, please select preffered language take a notice that this will change available payment options and currency.', reply_markup=inline.inkb())
 

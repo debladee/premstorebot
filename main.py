@@ -8,11 +8,11 @@ import db.sqlite_db
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 
-    #Запуск SQLite
+    # Запуск SQLite
 print('Бот онлайн')
 db.sqlite_db.sql_start()
 
-    #Стартовая функция и логирование
+    # Стартовая функция и логирование
 async def start():
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s - [%(levelname)s] - %(name)s - "
@@ -22,18 +22,19 @@ async def start():
 
     dp = Dispatcher()
 
-    #Регистрация обработчиков и коллбеков
-    dp.message.register(handlers.clientprem.startup, Command(commands=['start', 'help']))
+    # Регистрация обработчиков и коллбеков
+    dp.message.register(handlers.clientprem.startup, Command(commands=['start', 'help', 'начать', 'Начать', 'привет', 'Привет']))
     dp.message.register(handlers.adminprem.op, Command(commands='op'))
+    dp.message.register(db.sqlite_db.get_tables, Command(commands='Таблицы'))
     dp.message.register(handlers.adminprem.add, Command(commands='Добавить'))
     dp.message.register(handlers.adminprem.cancel, Command(commands='Отмена'))
     dp.message.register(handlers.adminprem.load_photo, handlers.adminprem.UPD.photo)
     dp.message.register(handlers.adminprem.load_name, handlers.adminprem.UPD.name)
     dp.message.register(handlers.adminprem.load_description, handlers.adminprem.UPD.description)
     dp.message.register(handlers.adminprem.load_price, handlers.adminprem.UPD.price)
-    dp.message.register(db.sqlite_db.get_tables, Command(commands='Таблицы'))
-    dp.message.register(db.sqlite_db.add_vbucks, Command(commands='Вбаксы'))
-    dp.message.register(db.sqlite_db.add_vbucksen, Command(commands='Vbucks'))
+    dp.callback_query.register(handlers.adminprem.select_table, handlers.adminprem.UPD.table_select)
+    # dp.message.register(db.sqlite_db.add_vbucks, Command(commands='Вбаксы'))
+    # dp.message.register(db.sqlite_db.save_data, Command(commands='Vbucks'))
     dp.callback_query.register(handlers.clientprem.russian, lambda c: c.data.startswith('RUS'))
     dp.callback_query.register(handlers.clientprem.english, lambda c: c.data.startswith('ENG'))
     dp.callback_query.register(handlers.clientprem.store, lambda c: c.data.startswith('Магазин'))
@@ -58,14 +59,14 @@ async def start():
     dp.callback_query.register(handlers.clientprem.xbox_en, lambda c: c.data.startswith('xbox'))
 
 
-    #Старт поллинга, потом поменяется на хуки
+    # Старт поллинга, потом поменяется на хуки
     try:                                                       
         await dp.start_polling(bot)
     finally:
         print("Завершаю работу...")
         await bot.session.close()
 
-    #Обработка SIGTERM
+    # Обработка SIGTERM
 def handle_sigterm(signum, frame):              
     loop = asyncio.get_event_loop()
     tasks = asyncio.all_tasks(loop)

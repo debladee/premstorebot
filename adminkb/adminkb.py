@@ -21,14 +21,3 @@ admkb = ReplyKeyboardMarkup(keyboard=[
             )
     ]
 ], resize_keyboard=True)
-
-selector = ReplyKeyboardMarkup(keyboard=[
-    [
-        KeyboardButton(
-            text='/Вбаксы'
-        ),
-        KeyboardButton(
-            text='/vbucks'
-        )
-    ]
-])

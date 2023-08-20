@@ -1,9 +1,11 @@
 import sqlite3 as sq
 import imports
 from aiogram import Bot, types
+from handlers.adminprem import select_table
 global base, cur
 bot = Bot(token=imports.TOKEN)
 
+    # Функция старта базы данных
 def sql_start():
     global base, cur
     base = sq.connect('premstore.db')
@@ -20,54 +22,19 @@ def sql_start():
     base.execute('CREATE TABLE IF NOT EXISTS xboxEN(img TEXT, name TEXT PRIMARY KEY, description TEXT, price TEXT)')
     base.commit()
 
-
+    # Функция получения таблиц базы данных (Лол, а зачем она нужна по итогу?)
 async def get_tables(message: types.Message, bot: Bot):
     cur.execute('SELECT name FROM sqlite_master WHERE type = "table"')
     tables = cur.fetchall()
     tables_str = ', '.join([table[0] for table in tables])
     await message.answer(f"Таблицы в базе данных: {tables_str}")
 
+    # Сохранение данных в выбранную таблицу из callback_data в модуле adminprem
+async def save_data(selected_table, data_tuple):
+    cur.execute(f'INSERT INTO {selected_table} VALUES (?, ?, ?, ?)', data_tuple)
+    base.commit()
 
-async def add_vbucks(state):
-    async with state.proxy() as data:
-        cur.execute('INSERT INTO vbucks VALUES (?, ?, ?, ?)', tuple(data.values()))
-        base.commit()
-
-async def add_vbucksen(state):
-    async with state.proxy() as data:
-        cur.execute('INSERT INTO vbucksEN VALUES (?, ?, ?, ?)', tuple(data.values()))
-        base.commit()
-
-async def add_bundles(state):
-    async with state.proxy() as data:
-        cur.execute('INSERT INTO bundles VALUES (?, ?, ?, ?)', tuple(data.values()))
-        base.commit()
-
-async def add_bundlesen(state):
-    async with state.proxy() as data:
-        cur.execute('INSERT INTO bundlesEN VALUES (?, ?, ?, ?)', tuple(data.values()))
-        base.commit()
-
-async def add_spot(state):
-    async with state.proxy() as data:
-        cur.execute('INSERT INTO spotify VALUES (?, ?, ?, ?)', tuple(data.values()))
-        base.commit()
-
-async def add_spoten(state):
-    async with state.proxy() as data:
-        cur.execute('INSERT INTO spotifyEN VALUES (?, ?, ?, ?)', tuple(data.values()))
-        base.commit()
-
-async def add_xbox(state):
-    async with state.proxy() as data:
-        cur.execute('INSERT INTO xboxRU VALUES (?, ?, ?, ?)', tuple(data.values()))
-        base.commit()
-
-async def add_xboxen(state):
-    async with state.proxy() as data:
-        cur.execute('INSERT INTO xboxEN VALUES (?, ?, ?, ?)', tuple(data.values()))
-        base.commit()
-
+    # Чтение данных из таблицы соответствующей выбору пользователя
 async def read_vbucks(message):
     for ret in cur.execute('SELECT * FROM vbucks').fetchall():
         await bot.send_message(message.from_user.id, ret[0], f'{ret[1]}\nОписание: {ret[2]}\nЦена: {ret[-1]}')
