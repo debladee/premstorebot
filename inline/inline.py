@@ -74,7 +74,7 @@ def subscriptions_ru():
     subscriptions_ru.button(text='Назад', callback_data='назад')
 
     subscriptions_ru.adjust(1, 2)
-    return subscriptions_ru.as_markup()
+    return subscriptions_ru.as_markup() 
 
 def subscriptions_en():
     subscriptions_en = InlineKeyboardBuilder()
@@ -127,3 +127,13 @@ def xboxen():
 
     xboxen.adjust(2, 1, 1)
     return xboxen.as_markup()
+
+def table_selector():
+    table_selector = InlineKeyboardBuilder()
+    available_tables = ['vbucks', 'bundles', 'subs', 'spotify', 'vbucksEN', 'bundlesEN', 'spotifyEN', 'xboxRU', 'xboxEN']
+
+    for table_name in available_tables:
+        table_selector.button(text=table_name, callback_data=f"select_table:{table_name}")
+
+    table_selector.adjust(4, 4, 4)
+    return table_selector.as_markup()
