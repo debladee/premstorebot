@@ -1,13 +1,17 @@
 from aiogram import types, Bot, Dispatcher
 from inline import inline
 import imports
-from db.sqlite_db import read_vbucks
+import db
+# from db.sqlite_db import read_vbucks
 bot = Bot(token=imports.TOKEN)
 dp = Dispatcher()
 
     # Функция старта, потом идут соответсвующие функции получаемые после выбора из первой
 
 async def startup(message: types.Message, bot: Bot):
+    await message.answer('Добрый день, пожалуйста выберите предпочитаемый язык, заметье от языка зависит валюта и доступные методы оплаты. Welcome, please select preffered language take a notice that this will change available payment options and currency.', reply_markup=inline.inkb())
+
+async def magicup(message: types.Message, bot: Bot):
     await message.answer('Добрый день, пожалуйста выберите предпочитаемый язык, заметье от языка зависит валюта и доступные методы оплаты. Welcome, please select preffered language take a notice that this will change available payment options and currency.', reply_markup=inline.inkb())
 
 async def russian(callback: types.CallbackQuery, bot: Bot):
@@ -96,9 +100,9 @@ async def fortnite_en(callback: types.CallbackQuery, bot: Bot):
 
 async def vbucks(callback: types.CallbackQuery, bot: Bot):
     if callback.data == 'Вбаксы':
-        new_message = await callback.message.answer('В-Баксы на ваш аккаунт Epic Games, Xbox или Playstation. Внимание! В-баксы не доступны на Nintendo')
+        table_name = "vbucks"
+        new_message = await callback.message.answer('В-Баксы на ваш аккаунт Epic Games, Xbox или Playstation. Внимание! В-баксы не доступны на Nintendo', reply_markup=inline.gen_selection(table_name))
         await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-        await sqlite
         await callback.answer()
         return
 

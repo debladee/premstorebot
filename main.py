@@ -5,7 +5,7 @@ import logging
 import handlers.clientprem
 import handlers.adminprem
 import db.sqlite_db 
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
 
     # Запуск SQLite
@@ -22,8 +22,12 @@ async def start():
 
     dp = Dispatcher()
 
+    # magicray = ['Привет', 'привет', 'магазин', 'Магазин']
+
+
     # Регистрация обработчиков и коллбеков
     dp.message.register(handlers.clientprem.startup, Command(commands=['start', 'help', 'начать', 'Начать', 'привет', 'Привет']))
+    # dp.message.register(handlers.clientprem.magicup, F.text.contains(magicray))
     dp.message.register(handlers.adminprem.op, Command(commands='op'))
     dp.message.register(db.sqlite_db.get_tables, Command(commands='Таблицы'))
     dp.message.register(handlers.adminprem.add, Command(commands='Добавить'))
@@ -33,8 +37,6 @@ async def start():
     dp.message.register(handlers.adminprem.load_description, handlers.adminprem.UPD.description)
     dp.message.register(handlers.adminprem.load_price, handlers.adminprem.UPD.price)
     dp.callback_query.register(handlers.adminprem.select_table, handlers.adminprem.UPD.table_select)
-    # dp.message.register(db.sqlite_db.add_vbucks, Command(commands='Вбаксы'))
-    # dp.message.register(db.sqlite_db.save_data, Command(commands='Vbucks'))
     dp.callback_query.register(handlers.clientprem.russian, lambda c: c.data.startswith('RUS'))
     dp.callback_query.register(handlers.clientprem.english, lambda c: c.data.startswith('ENG'))
     dp.callback_query.register(handlers.clientprem.store, lambda c: c.data.startswith('Магазин'))

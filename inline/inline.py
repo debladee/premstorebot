@@ -1,4 +1,5 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from db.sqlite_db import read_data
 
 def inkb():
     inkb = InlineKeyboardBuilder()
@@ -128,12 +129,23 @@ def xboxen():
     xboxen.adjust(2, 1, 1)
     return xboxen.as_markup()
 
-def table_selector():
+def table_selector(available_tables):
     table_selector = InlineKeyboardBuilder()
-    available_tables = ['vbucks', 'bundles', 'subs', 'spotify', 'vbucksEN', 'bundlesEN', 'spotifyEN', 'xboxRU', 'xboxEN']
 
     for table_name in available_tables:
         table_selector.button(text=table_name, callback_data=f"select_table:{table_name}")
 
     table_selector.adjust(4, 4, 4)
     return table_selector.as_markup()
+
+def gen_selection(table_name):
+    gen_selection = InlineKeyboardBuilder()
+    
+    results = read_data(table_name)
+    for product_name in results:
+        product_name = product_name[0]
+        gen_selection.button(text=product_name, callback_data=f"product:{product_name}")
+    gen_selection.button(text='Назад', callback_data='Назад')
+
+    gen_selection.adjust(4, 4, 4)
+    return gen_selection.as_markup()

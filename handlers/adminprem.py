@@ -1,4 +1,4 @@
-import db.sqlite_db
+from db import sqlite_db
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram import types, Bot, Dispatcher
@@ -45,11 +45,13 @@ async def load_photo(message: types.Message, state: FSMContext, bot: Bot):
     await state.set_state(UPD.name)
     await message.answer("Введите название товара")
 
+
     # Обновление данных для имени, перевод состояния в UPD.description
 async def load_name(message: types.Message, state : FSMContext, bot: Bot):
     await state.update_data(name=message.text)
     await state.set_state(UPD.description)
     await message.answer("Введите описание")
+
 
     # Обновление данных для описания, перевод состояния в UPD.price
 async def load_description(message: types.Message, state : FSMContext, bot: Bot):
@@ -57,22 +59,24 @@ async def load_description(message: types.Message, state : FSMContext, bot: Bot)
     await state.set_state(UPD.price)
     await message.answer("Укажите цену в RUB или USD")
 
+
     # Обновление данных для цены, перевод состояния в UPD.table_select
 async def load_price(message: types.Message, state : FSMContext, bot: Bot):
     await state.update_data(price=float(message.text))
     await state.set_state(UPD.table_select)
-    await message.answer('Теперь выберете таблицу для записи данных:', reply_markup=inline.table_selector())
+    available_tables = await sqlite_db.get_tables()
+    await message.answer('Теперь выберете таблицу для записи данных:', reply_markup=inline.table_selector(available_tables))
+
 
     # Выбор таблицы, возврат полученных в этом состоянии данных
 async def select_table(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
     selected_table = callback.data.split(":")[1]
 
-    # async with state.update_data(table_name=selected_table):
     await callback.message.answer('Таблица выбрана. Данные записаны.')
 
     data = await state.get_data()
     data_tuple = tuple(data.values())
 
-    await db.sqlite_db.save_data(selected_table, data_tuple)
+    await sqlite_db.save_data(selected_table, data_tuple)
     await callback.answer()
     await state.clear()
