@@ -21,3 +21,17 @@ admkb = ReplyKeyboardMarkup(keyboard=[
             )
     ]
 ], resize_keyboard=True)
+
+admtbl = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(
+            text='/Новая'
+        ),
+        KeyboardButton(
+            text='/Стереть'
+        ),
+        KeyboardButton(
+            text='/Назад'
+        )
+    ]    
+], resize_keyboard=True)
