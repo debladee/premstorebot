@@ -26,35 +26,6 @@ async def cancel(message: types.Message, state: FSMContext, bot: Bot):
     else:
         await bot.send_message(message.from_user.id, 'Вы не являетесь администратором')
 
-    # Машина состояний удаление товара
-class DEL(StatesGroup):
-    select = State()
-    delete = State()
-
-async def delete_data_select_table(message: types.Message, state: FSMContext, bot: Bot):
-    # if message.from_user.id == ADMIN:
-        available_tables = await sqlite_db.get_tables()
-        await message.answer('Выберите таблицу из которой вы хотите удалить данные', reply_markup=inline.table_selector(available_tables))
-        await state.set_state(DEL.select)
-    # else:
-    #     await bot.send_message(message.from_user.id, 'Вы не являетесь администратором')
-
-async def delete_data_select_product(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-    table_name = callback.data.split(":")[1]
-    await callback.message.answer('Выберите позицию которую вы хотите удалить.', reply_markup=inline.gen_selection_for_deletion(table_name))
-    await state.update_data(table_name=table_name)
-    await state.set_state(DEL.delete)
-    # await sqlite_db.del_data(table_name)
-    await callback.answer()
-
-async def delete_selected(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-    data = await state.get_data()
-    product_id = callback.data.split(":")[1]
-    table_name = data.get('table_name')
-    await sqlite_db.del_data(table_name, product_id)
-    await callback.answer()
-    await state.clear()
-
     # Машина состояний добавления товара
 class UPD(StatesGroup):
     photo = State()
@@ -112,21 +83,51 @@ async def select_table(callback: types.CallbackQuery, state: FSMContext, bot: Bo
     await callback.answer()
     await state.clear()
 
-class EDIT(StatesGroup):
-    photo = State()
-    name = State()
-    description = State()
-    price = State()
+    # Машина состояний удаление товара
+class DEL(StatesGroup):
+    select = State()
+    delete = State()
 
-async def edit_data(message: types.Message, state: FSMContext, bot: Bot):
+async def delete_data_select_table(message: types.Message, state: FSMContext, bot: Bot):
     if message.from_user.id == ADMIN:
         available_tables = await sqlite_db.get_tables()
-        await message.answer('Выберите таблицу в которой вы хотите изменить позицию', reply_markup=sqlite_db.table_selector(available_tables))
+        await message.answer('Выберите таблицу из которой вы хотите удалить данные', reply_markup=inline.table_selector(available_tables))
+        await state.set_state(DEL.select)
     else:
-        await bot.send_message(message.from_user.id, 'Вы не можете выполнить данное действие, так как не являетесь администратором')
+        await bot.send_message(message.from_user.id, 'Вы не являетесь администратором')
 
-async def select_row(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-    table_name = callback.data.split(":")[0]
+async def delete_data_select_product(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
+    table_name = callback.data.split(":")[1]
+    await callback.message.answer('Выберите позицию которую вы хотите удалить.', reply_markup=inline.gen_selection_for_deletion(table_name))
+    await state.update_data(table_name=table_name)
+    await state.set_state(DEL.delete)
+    await callback.answer()
+
+async def delete_selected(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
+    data = await state.get_data()
+    product_id = callback.data.split(":")[1]
+    table_name = data.get('table_name')
+    await sqlite_db.del_data(table_name, product_id)
+    updated_keyboard_markup = inline.gen_selection_for_deletion(table_name)
+    await bot.edit_message_reply_markup(chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=updated_keyboard_markup)
+    await callback.answer()
+
+    # Когда-нибудь здесь будет редактирование данных, но не сейчас
+# class EDIT(StatesGroup):
+#     photo = State()
+#     name = State()
+#     description = State()
+#     price = State()
+
+# async def edit_data(message: types.Message, state: FSMContext, bot: Bot):
+#     if message.from_user.id == ADMIN:
+#         available_tables = await sqlite_db.get_tables()
+#         await message.answer('Выберите таблицу в которой вы хотите изменить позицию', reply_markup=sqlite_db.table_selector(available_tables))
+#     else:
+#         await bot.send_message(message.from_user.id, 'Вы не можете выполнить данное действие, так как не являетесь администратором')
+
+# async def select_row(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
+#     table_name = callback.data.split(":")[0]
 
 
 
