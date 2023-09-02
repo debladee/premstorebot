@@ -8,34 +8,12 @@ from imports import ADMIN, TOKEN
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-    # Машина состояний добавления товара
-class UPD(StatesGroup):
-    photo = State()
-    name = State()
-    description = State()
-    price = State()
-    table_select = State()
-
     # Включение клавиатуры администратора
 async def op(message: types.Message, bot: Bot):
     if message.from_user.id == ADMIN:
         await message.answer('Добро пожаловать в админ-меню, воспользуйтесь клавиатурой для совершения действий', reply_markup=admkb)
     else:
         await bot.send_message(message.from_user.id, 'Вы не являетесь администратором')
-
-async def delete_data_select_table(message: types.Message, bot: Bot):
-    if message.from_user.id == ADMIN:
-        available_tables = await sqlite_db.get_tables()
-        await message.answer('Выберите таблицу из которой вы хотите удалить данные', reply_markup=inline.table_selector(available_tables))
-    else:
-        await bot.send_message(message.from_user.id, 'Вы не являетесь администратором')
-
-async def delete_data_select_product(callback: types.CallbackQuery, bot: Bot):
-    table_name = callback.data.split(":")[1]
-    new_message = await callback.message.answer('Выберите позицию которую вы хотите удалить.', reply_markup=inline.gen_selection(table_name))
-    id = callback.data.split(":")[2]
-    await sqlite_db.del_data(table_name, id)
-    await callback.answer()
 
     # Функция отмены добавления
 async def cancel(message: types.Message, state: FSMContext, bot: Bot):
@@ -47,6 +25,43 @@ async def cancel(message: types.Message, state: FSMContext, bot: Bot):
         await message.answer('Изменения отменены')
     else:
         await bot.send_message(message.from_user.id, 'Вы не являетесь администратором')
+
+    # Машина состояний удаление товара
+class DEL(StatesGroup):
+    select = State()
+    delete = State()
+
+async def delete_data_select_table(message: types.Message, state: FSMContext, bot: Bot):
+    # if message.from_user.id == ADMIN:
+        available_tables = await sqlite_db.get_tables()
+        await message.answer('Выберите таблицу из которой вы хотите удалить данные', reply_markup=inline.table_selector(available_tables))
+        await state.set_state(DEL.select)
+    # else:
+    #     await bot.send_message(message.from_user.id, 'Вы не являетесь администратором')
+
+async def delete_data_select_product(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
+    table_name = callback.data.split(":")[1]
+    await callback.message.answer('Выберите позицию которую вы хотите удалить.', reply_markup=inline.gen_selection_for_deletion(table_name))
+    await state.update_data(table_name=table_name)
+    await state.set_state(DEL.delete)
+    # await sqlite_db.del_data(table_name)
+    await callback.answer()
+
+async def delete_selected(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
+    data = await state.get_data()
+    product_id = callback.data.split(":")[1]
+    table_name = data.get('table_name')
+    await sqlite_db.del_data(table_name, product_id)
+    await callback.answer()
+    await state.clear()
+
+    # Машина состояний добавления товара
+class UPD(StatesGroup):
+    photo = State()
+    name = State()
+    description = State()
+    price = State()
+    table_select = State()
 
     # Начало машины состояний, доп. проверка ID администратора, добавление картинки и перевод в состояние UPD.photo
 async def add(message: types.Message, state: FSMContext, bot: Bot):
@@ -97,6 +112,25 @@ async def select_table(callback: types.CallbackQuery, state: FSMContext, bot: Bo
     await callback.answer()
     await state.clear()
 
+class EDIT(StatesGroup):
+    photo = State()
+    name = State()
+    description = State()
+    price = State()
+
+async def edit_data(message: types.Message, state: FSMContext, bot: Bot):
+    if message.from_user.id == ADMIN:
+        available_tables = await sqlite_db.get_tables()
+        await message.answer('Выберите таблицу в которой вы хотите изменить позицию', reply_markup=sqlite_db.table_selector(available_tables))
+    else:
+        await bot.send_message(message.from_user.id, 'Вы не можете выполнить данное действие, так как не являетесь администратором')
+
+async def select_row(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
+    table_name = callback.data.split(":")[0]
+
+
+
+
     # Смена клавиатуры
 async def changekb(message: types.Message, state : FSMContext, bot: Bot):
     if message.from_user.id == ADMIN:
@@ -122,37 +156,37 @@ async def create_table(message: types.Message, state: FSMContext, bot: Bot):
     await message.answer(f'Таблица {table_name} успешно добавлена!')
     await state.clear()
     
-class TBLDEL(StatesGroup):
-    confirm_prompt = State()
-    handle_confirm = State()
+# class TBLDEL(StatesGroup):
+#     confirm_prompt = State()
+#     handle_confirm = State()
 
     # Удаление таблиц
-async def delete_table(message: types.Message, state: FSMContext, bot: Bot):
-    available_tables = await sqlite_db.get_tables()
+# async def delete_table(message: types.Message, state: FSMContext, bot: Bot):
+#     available_tables = await sqlite_db.get_tables()
 
-    await message.answer('Внимание! Удаление таблицы приводит к полной потери данных, действуйте на своё усмотрение!', reply_markup=inline.table_selector(available_tables))
-    await state.set_state(TBLDEL.confirm_prompt)
+#     await message.answer('Внимание! Удаление таблицы приводит к полной потери данных, действуйте на своё усмотрение!', reply_markup=inline.table_selector(available_tables))
+#     await state.set_state(TBLDEL.confirm_prompt)
 
-async def confirmation_prompt(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-    selected_table = callback.data.split(":")[1]
-    await state.update_data(selected_table=selected_table)
+# async def confirmation_prompt(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
+#     selected_table = callback.data.split(":")[1]
+#     await state.update_data(selected_table=selected_table)
 
-    new_message = await callback.message.answer(f'Вы действительно хотите удалить таблицу {selected_table}', reply_markup=inline.yes_no())
-    await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+#     new_message = await callback.message.answer(f'Вы действительно хотите удалить таблицу {selected_table}', reply_markup=inline.yes_no())
+#     await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
 
-    await state.set_state(TBLDEL.handle_confirm)
-    await callback.answer()
+#     await state.set_state(TBLDEL.handle_confirm)
+#     await callback.answer()
 
-async def handle_confirmation(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
-    data = await state.get_data()
-    selected_table = data.get("selected_table")
+# async def handle_confirmation(callback: types.CallbackQuery, state: FSMContext, bot: Bot):
+#     data = await state.get_data()
+#     selected_table = data.get("selected_table")
 
-    if callback.data == "Yes":
-        await sqlite_db.del_table(selected_table)
-        new_message = await callback.message.answer(f'Таблица {selected_table} успешно удалена!')
-        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-    else:
-        await callback.message.edit_text('Удаление таблицы отменено.')
+#     if callback.data == "Yes":
+#         await sqlite_db.del_table(selected_table)
+#         new_message = await callback.message.answer(f'Таблица {selected_table} успешно удалена!')
+#         await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+#     else:
+#         await callback.message.edit_text('Удаление таблицы отменено.')
 
-    await state.clear()
-    await callback.answer()
+#     await state.clear()
+#     await callback.answer()

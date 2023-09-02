@@ -61,6 +61,11 @@ async def save_data(selected_table, data_tuple):
 
     # Чтение данных из таблицы соответствующей выбору пользователя
 def read_data(table_name):
+    cur.execute(f'SELECT name, price FROM {table_name}')
+    results = cur.fetchall()
+    return results
+
+def read_data_delete(table_name):
     cur.execute(f'SELECT name FROM {table_name}')
     results = cur.fetchall()
     return results
@@ -69,6 +74,6 @@ async def del_table(selected_table):
     cur.execute(f'DROP TABLE IF EXISTS {selected_table}')
     base.commit()
 
-async def del_data(table_name, id):
-    cur.execute(f'DELETE FROM {table_name} WHERE {id}')
+async def del_data(table_name, product_id):
+    cur.execute(f'DELETE FROM {table_name} WHERE name = ?', (product_id,))
     base.commit()

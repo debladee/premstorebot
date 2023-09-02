@@ -1,5 +1,5 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from db.sqlite_db import read_data
+from db.sqlite_db import read_data, read_data_delete
 
 def inkb():
     inkb = InlineKeyboardBuilder()
@@ -142,13 +142,34 @@ def gen_selection(table_name):
     gen_selection = InlineKeyboardBuilder()
     
     results = read_data(table_name)
-    for product_name in results:
-        product_name = product_name[0]
-        gen_selection.button(text=product_name, callback_data=f"product:{product_name}")
-    gen_selection.button(text='Назад', callback_data='Назад')
+    for product_name, product_price in results:
+        gen_selection.button(text=f"{product_name} | {product_price}₽", callback_data=f"product:{product_name}")
+    gen_selection.button(text='В меню', callback_data='RUS')
 
-    gen_selection.adjust(4, 4, 4)
+    gen_selection.adjust(1, 1, 1, 1, 1, 1, 1, 1)
     return gen_selection.as_markup()
+
+def gen_selection_english(table_name):
+    gen_selection_english = InlineKeyboardBuilder()
+    
+    results = read_data(table_name)
+    for product_name, product_price in results:
+        gen_selection.button(text=f"{product_name} | {product_price}$", callback_data=f"product:{product_name}")
+    gen_selection_english.button(text='Main Menu', callback_data='ENG')
+
+    gen_selection_english.adjust(1, 1, 1, 1, 1, 1, 1, 1)
+    return gen_selection_english.as_markup()
+
+def gen_selection_for_deletion(table_name):
+    gen_selection_for_deletion = InlineKeyboardBuilder()
+    
+    results = read_data_delete(table_name)
+    for product_tuple in results:
+        product_name = product_tuple[0]
+        gen_selection_for_deletion.button(text=f"{product_name}", callback_data=f"product:{product_name}")
+
+    gen_selection_for_deletion.adjust(1, 1, 1, 1, 1, 1, 1, 1)
+    return gen_selection_for_deletion.as_markup()
 
 def yes_no():
     yes_no = InlineKeyboardBuilder()
