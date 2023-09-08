@@ -77,3 +77,6 @@ async def del_table(selected_table):
 async def del_data(table_name, product_id):
     cur.execute(f'DELETE FROM {table_name} WHERE name = ?', (product_id,))
     base.commit()
+
+async def product_output(product_id):
+    cur.execute(f'')

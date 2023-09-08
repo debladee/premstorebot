@@ -108,6 +108,7 @@ async def vbucks(callback: types.CallbackQuery, bot: Bot):
 
 async def vbucks_en(callback: types.CallbackQuery, bot: Bot):
     if callback.data == 'Vbucks':
+        table_name = "vbucksEN"
         new_message = await callback.message.answer('V-Bucks for your Epic Games, Xbox or Playstation account. Warning! V-Bucks are not available on Nintendo')
         await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
         await callback.answer()
@@ -115,6 +116,7 @@ async def vbucks_en(callback: types.CallbackQuery, bot: Bot):
 
 async def bunldes(callback: types.CallbackQuery, bot: Bot):
     if callback.data == 'Наборы':
+        table_name = "bundles"
         new_message = await callback.message.answer('Наборы на ваш аккаунт Epic Games, Xbox или Playstation. Внимание! В-баксы не доступны на Nintendo')
         await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
         await callback.answer()
@@ -122,6 +124,7 @@ async def bunldes(callback: types.CallbackQuery, bot: Bot):
 
 async def bunldes_en(callback: types.CallbackQuery, bot: Bot):
     if callback.data == 'Bundles':
+        table_name = "bundlesEN"
         new_message = await callback.message.answer('Bundles for your Epic Games, Xbox or Playstation account. Warning! V-Bucks are not available on Nintendo')
         await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
         await callback.answer()
@@ -169,3 +172,35 @@ async def xbox_en(callback: types.CallbackQuery, bot: Bot):
         await callback.answer()
         return
 
+async def psplus(callback: types.CallbackQuery, bot: Bot):
+    if callback.data == 'ps':
+        new_message = await callback.message.answer('Xbox Game Pass subscription for your PC, console or both at once', reply_markup=inline.xboxen())
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        await callback.answer()
+        return
+
+async def psplus_en(callback: types.CallbackQuery, bot: Bot):
+    if callback.data == 'psen':
+        new_message = await callback.message.answer('Xbox Game Pass subscription for your PC, console or both at once', reply_markup=inline.xboxen())
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        await callback.answer()
+        return
+
+async def exitlag(callback: types.CallbackQuery, bot: Bot):
+    if callback.data == 'el':
+        new_message = await callback.message.answer('Xbox Game Pass subscription for your PC, console or both at once', reply_markup=inline.xboxen())
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        await callback.answer()
+        return
+
+async def exitlag_en(callback: types.CallbackQuery, bot: Bot):
+    if callback.data == 'elen':
+        new_message = await callback.message.answer('Xbox Game Pass subscription for your PC, console or both at once', reply_markup=inline.xboxen())
+        await bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+        await callback.answer()
+        return
+
+async def read_product(callback: types.CallbackQuery, bot: Bot):
+    product_id = callback.data.split(":")[1]
+    new_message = await callback.message.answer()
+    await db.sqlite_db.product_output(table_name, product_id)

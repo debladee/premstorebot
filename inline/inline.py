@@ -147,7 +147,7 @@ def gen_selection(table_name):
     gen_selection.button(text='В меню', callback_data='RUS')
 
     gen_selection.adjust(1, 1, 1, 1, 1, 1, 1, 1)
-    return gen_selection.as_markup()
+    return gen_selection.as_markup(), table_name
 
 def gen_selection_english(table_name):
     gen_selection_english = InlineKeyboardBuilder()
